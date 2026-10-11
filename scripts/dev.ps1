@@ -56,7 +56,7 @@ if (-not (Test-Path $VenvDir)) {
 
 Write-Host "[4/5] Starting AI Service in background..."
 $UvicornExe = Join-Path $VenvDir "Scripts\uvicorn.exe"
-$AiProcess = Start-Process -FilePath $UvicornExe -ArgumentList "main:app --app-dir `"$AiDir`" --host 127.0.0.1 --port 8000" -PassThru -NoNewWindow
+$AiProcess = Start-Process -FilePath $UvicornExe -ArgumentList "main:app --app-dir `"$AiDir`" --host 0.0.0.0 --port 8000" -PassThru -NoNewWindow
 $AiProcess.Id | Out-File -FilePath "$ScriptDir\.ai_service.pid" -Encoding ascii
 
 Write-Host "Waiting for AI Service GET /health..."
@@ -80,5 +80,5 @@ Write-Host "AI Service is healthy!" -ForegroundColor Green
 
 # 5. Start Web App
 Write-Host "[5/5] Starting Next.js Web App on http://localhost:3000..."
-Set-Location "$RepoRoot\web"
+Set-Location "$RepoRoot\frontend"
 npm run dev

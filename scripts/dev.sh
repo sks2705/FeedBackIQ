@@ -58,7 +58,7 @@ if [ ! -d "$AI_DIR/venv" ]; then
 fi
 
 echo "[4/5] Starting AI Service in background..."
-"$AI_DIR/venv/bin/uvicorn" main:app --app-dir "$AI_DIR" --host 127.0.0.1 --port 8000 &
+"$AI_DIR/venv/bin/uvicorn" main:app --app-dir "$AI_DIR" --host 0.0.0.0 --port 8000 &
 AI_PID=$!
 echo $AI_PID > "$REPO_ROOT/scripts/.ai_service.pid"
 
@@ -71,4 +71,4 @@ echo "AI Service is healthy!"
 # 5. Start Web App
 echo "[5/5] Starting Next.js Web App on http://localhost:3000..."
 echo "Press Ctrl+C or run scripts/stop.sh to terminate services."
-(cd "$REPO_ROOT/web" && npm run dev)
+(cd "$REPO_ROOT/frontend" && npm run dev)
