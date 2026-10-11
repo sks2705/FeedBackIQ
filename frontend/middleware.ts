@@ -13,7 +13,13 @@ const PUBLIC_ROUTES = [
 ];
 
 function getJwtSecret(): Uint8Array {
-  const secret = process.env.JWT_SECRET || 'super-secret-jwt-token-at-least-32-chars-long';
+  // The frontend must use the same secret as the backend. Do not silently
+  // fall back to a different key: that makes every valid login look invalid
+  // and sends the user back to /login when /admin is requested.
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET must be configured for the frontend');
+  }
   return new TextEncoder().encode(secret);
 }
 
