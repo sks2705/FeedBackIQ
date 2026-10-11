@@ -1,0 +1,105 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
+}
+
+enum Sentiment {
+  POSITIVE
+  NEGATIVE
+  NEUTRAL
+}
+
+enum Category {
+  UI_UX
+  PERFORMANCE
+  BUG
+  FEATURE_REQUEST
+  SECURITY
+  OTHER
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum Status {
+  NEW
+  REVIEWING
+  RESOLVED
+}
+
+enum AnalysisStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum Role {
+  ADMIN
+  VIEWER
+}
+
+model Feedback {
+  id             String         @id @default(uuid()) @db.Uuid
+  message        String
+  productName    String         @map("product_name")
+  userName       String?        @map("user_name")
+  userEmail      String?        @map("user_email")
+  source         String?
+  sentiment      Sentiment?
+  category       Category?
+  priority       Priority?
+  summary        String?
+  confidence     Float?
+  status         Status         @default(NEW)
+  analysisStatus AnalysisStatus @default(PENDING) @map("analysis_status")
+  analysisError  String?        @map("analysis_error")
+  modelVersion   String?        @map("model_version")
+  analyzedAt     DateTime?      @map("analyzed_at")
+  isSeed         Boolean        @default(false) @map("is_seed")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  attachments    Attachment[]
+
+  @@index([createdAt])
+  @@index([sentiment])
+  @@index([category])
+  @@index([priority])
+  @@index([status])
+  @@index([analysisStatus])
+  @@map("feedback")
+}
+
+model Attachment {
+  id           String   @id @default(uuid()) @db.Uuid
+  feedbackId   String   @map("feedback_id") @db.Uuid
+  objectKey    String   @unique @map("object_key")
+  originalName String   @map("original_name")
+  contentType  String   @map("content_type")
+  sizeBytes    Int      @map("size_bytes")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  feedback Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+
+  @@index([feedbackId])
+  @@map("attachments")
+}
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         Role     @default(VIEWER)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("users")
+}

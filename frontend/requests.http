@@ -1,0 +1,37 @@
+@baseUrl = http://localhost:3000
+@feedbackId = 00000000-0000-0000-0000-000000000000
+
+### Create feedback (public)
+POST {{baseUrl}}/api/feedback
+Content-Type: application/json
+
+{
+  "message": "The checkout page froze after I clicked pay and I had to refresh twice.",
+  "productName": "Checkout Flow",
+  "userName": "Alex Student",
+  "userEmail": "alex.student@example.com",
+  "source": "web"
+}
+
+### List feedback (admin)
+GET {{baseUrl}}/api/feedback?page=2&pageSize=10&sentiment=NEGATIVE&search=crash
+
+### Get feedback by id (admin)
+GET {{baseUrl}}/api/feedback/{{feedbackId}}
+
+### Update feedback status (admin)
+PATCH {{baseUrl}}/api/feedback/{{feedbackId}}/status
+Content-Type: application/json
+
+{
+  "status": "REVIEWING"
+}
+
+### Reanalyze feedback (admin)
+POST {{baseUrl}}/api/feedback/{{feedbackId}}/reanalyze
+
+### Export feedback CSV (admin)
+GET {{baseUrl}}/api/feedback/export?sentiment=NEGATIVE&search=crash
+
+### Analytics summary (admin)
+GET {{baseUrl}}/api/analytics/summary?days=30

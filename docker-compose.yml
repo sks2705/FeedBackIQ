@@ -1,0 +1,120 @@
+name: feedbackiq
+
+services:
+  backend:
+    build:
+      context: ./backend
+      target: runner
+    image: ${IMAGE_PREFIX:-feedbackiq}/feedbackiq-backend:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    expose:
+      - "3000"
+    environment:
+      NODE_ENV: production
+      # Use the direct PostgreSQL endpoint for the application as well.
+      DATABASE_URL: ${DIRECT_URL:?DIRECT_URL must be set}
+      AI_SERVICE_URL: http://ai-service:8000
+      AI_TIMEOUT_MS: ${AI_TIMEOUT_MS:-15000}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
+      S3_BUCKET: ${S3_BUCKET:?S3_BUCKET must be set}
+      S3_REGION: ${S3_REGION:-us-east-1}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:-}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-}
+      MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-5}
+      TRUST_PROXY: "true"
+    networks:
+      - internal
+      - public
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      ai-service:
+        condition: service_healthy
+    security_opt:
+      - "no-new-privileges:true"
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  migrate:
+    build:
+      context: ./backend
+      target: migrate
+    image: ${IMAGE_PREFIX:-feedbackiq}/feedbackiq-migrate:${IMAGE_TAG:-latest}
+    environment:
+      # Prisma migrations must use the direct database endpoint, not a pooler.
+      DATABASE_URL: ${DIRECT_URL:?DIRECT_URL must be set for migrations}
+    networks:
+      - internal
+      - public
+    security_opt:
+      - "no-new-privileges:true"
+
+  ai-service:
+    build: ./ai-service
+    image: ${IMAGE_PREFIX:-feedbackiq}/feedbackiq-ai:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    expose:
+      - "8000"
+    environment:
+      PORT: "8000"
+      HF_HUB_OFFLINE: "1"
+    networks:
+      - internal
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    security_opt:
+      - "no-new-privileges:true"
+    deploy:
+      resources:
+        limits:
+          memory: 1536M
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:?APP_DOMAIN must be set}
+      ACME_EMAIL: ${ACME_EMAIL:?ACME_EMAIL must be set}
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - public
+    depends_on:
+      backend:
+        condition: service_healthy
+    security_opt:
+      - "no-new-privileges:true"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  public:
+    driver: bridge
+  internal:
+    driver: bridge
+    internal: true
+
+volumes:
+  caddy_data:
+  caddy_config:

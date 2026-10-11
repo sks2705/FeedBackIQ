@@ -1,0 +1,663 @@
+import {
+  AnalysisStatus,
+  Category,
+  PrismaClient,
+  Priority,
+  Role,
+  Sentiment,
+  Status,
+} from '@prisma/client';
+import bcrypt from 'bcryptjs';
+import { analyzeFeedbackRecord } from '../lib/analysisService';
+
+const prisma = new PrismaClient();
+
+type SeedRow = {
+  message: string;
+  productName: string;
+  userName: string | null;
+  userEmail: string | null;
+  source: string;
+  sentiment: Sentiment | null;
+  category: Category | null;
+  priority: Priority | null;
+  summary: string | null;
+  confidence: number | null;
+  status: Status;
+  analysisStatus: AnalysisStatus;
+  analysisError: string | null;
+  modelVersion: string | null;
+  daysAgo: number;
+};
+
+const SEED_ROWS: SeedRow[] = [
+  {
+    message:
+      'The new dashboard layout is clean and I found the filters immediately. Love the dark theme.',
+    productName: 'Admin Dashboard',
+    userName: 'Priya Nair',
+    userEmail: 'priya.nair@example.com',
+    source: 'web',
+    sentiment: Sentiment.POSITIVE,
+    category: Category.UI_UX,
+    priority: Priority.LOW,
+    summary: 'User praises dashboard layout, filters, and dark theme.',
+    confidence: 0.94,
+    status: Status.RESOLVED,
+    analysisStatus: AnalysisStatus.COMPLETED,
+    analysisError: null,
+    modelVersion: 'seed-v1',
+    daysAgo: 1,
+  },
+  {
+    message:
+      'Checkout crashed after I applied a coupon. The pay button spun for a minute and then showed a blank page.',
+    productName: 'Checkout Flow',
+    userName: 'Rahul Mehta',
+    userEmail: 'rahul.mehta@example.com',
+    source: 'support',
+    sentiment: Sentiment.NEGATIVE,
+    category: Category.BUG,
+    priority: Priority.CRITICAL,
+    summary: 'Checkout crash after coupon apply; pay button hangs then blank page.',
+    confidence: 0.97,
+    status: Status.REVIEWING,
+    analysisStatus: AnalysisStatus.COMPLETED,
+    analysisError: null,
+    modelVersion: 'seed-v1',
+    daysAgo: 2,
+  },
+  {
+    message:
+      '=1+1 the search results page took more than eight seconds on a mid-range Android phone.',
+    productName: 'Search',
+    userName: 'Anita Shah',
+    userEmail: 'anita.shah@example.com',
+    source: 'survey',
+    sentiment: Sentiment.NEGATIVE,
+    category: Category.PERFORMANCE,
+    priority: Priority.HIGH,
+    summary: 'Slow search results on Android; perceived wait over eight seconds.',
+    confidence: 0.91,
+    status: Status.NEW,
+    analysisStatus: AnalysisStatus.COMPLETED,
+    analysisError: null,
+    modelVersion: 'seed-v1',
+    daysAgo: 3,
+  },
+  {
+    message:
+      'Please add CSV export for individual team workspaces, not only the org-wide report.',
+    productName: 'Reports',
+    userName: 'Daniel Cho',
+    userEmail: 'daniel.cho@example.com',
+    source: 'email',
+    sentiment: Sentiment.NEUTRAL,
+    category: Category.FEATURE_REQUEST,
+    priority: Priority.MEDIUM,
+    summary: 'Feature request for per-workspace CSV export.',
+    confidence: 0.88,
+    status: Status.NEW,
+    analysisStatus: AnalysisStatus.COMPLETED,
+    analysisError: null,
+    modelVersion: 'seed-v1',
+    daysAgo: 4,
+  },
+  {
+    message:
+      'Session cookies appear to be readable from a third-party script on the marketing site. Please review.',
+    productName: 'Marketing Site',
+    userName: 'Security Bot',
+    userEmail: 'security@example.com',
+    source: 'email',
+    sentiment: Sentiment.NEGATIVE,
+    category: Category.SECURITY,
+    priority: Priority.CRITICAL,
+    summary: 'Possible third-party script access to session cookies.',
+    confidence: 0.86,
+    status: Status.REVIEWING,
+    analysisStatus: AnalysisStatus.COMPLETED,
+    analysisError: null,
+    modelVersion: 'seed-v1',
+    daysAgo: 5,
+  },
+  {
+    message:
+      'The onboarding tooltips were helpful. Nothing is broken; I just wanted to say thanks.',
+    productName: 'Onboarding',
+    userName: 'Maya Iyer',
+    userEmail: 'maya.iyer@example.com',
+    source: 'web',
+    sentiment: Sentiment.POSITIVE,
+    category: Category.OTHER,
+    priority: Priority.LOW,
+    summary: 'Positive note about onboarding tooltips.',
+    confidence: 0.9,
+    status: Status.RESOLVED,
+    analysisStatus: AnalysisStatus.COMPLETED,
+    analysisError: null,
+    modelVersion: 'seed-v1',
+    daysAgo: 6,
+  },
+  {
+    message:
+      'Mobile app login works, but Face ID fails every other attempt after the latest iOS update.',
+    productName: 'Mobile App',
+    userName: 'Chris Patel',
+    userEmail: 'chris.patel@example.com',
+    source: 'support',
+    sentiment: Sentiment.NEGATIVE,
+    category: Category.BUG,
+    priority: Priority.HIGH,
+    summary: 'Intermittent Face ID login failure after iOS update.',
+    confidence: 0.93,
+    status: Status.NEW,
+    analysisStatus: AnalysisStatus.COMPLETED,
+    analysisError: null,
+    modelVersion: 'seed-v1',
+    daysAgo: 7,
+  },
+  {
+    message: 'The billing invoice PDF looks professional. Tax breakdown is finally easy to read.',
+    productName: 'Billing Portal',
+    userName: 'Sofia Alvarez',
+    userEmail: 'sofia.alvarez@example.com',
+    source: 'survey',
+    sentiment: Sentiment.POSITIVE,
+    category: Category.UI_UX,
+    priority: Priority.LOW,
+    summary: 'Positive feedback on invoice PDF tax breakdown.',
+    confidence: 0.89,
+    status: Status.RESOLVED,
+    analysisStatus: AnalysisStatus.COMPLETED,
+    analysisError: null,
+    modelVersion: 'seed-v1',
+    daysAgo: 8,
+  },
+  {
+    message:
+      'Notifications arrive in a burst at midnight instead of the digest time I selected in settings.',
+    productName: 'Notifications',
+    userName: 'Omar Farouk',
+    userEmail: 'omar.farouk@example.com',
+    source: 'web',
+    sentiment: Sentiment.NEGATIVE,
+    category: Category.BUG,
+    priority: Priority.MEDIUM,
+    summary: 'Notification digest ignores selected delivery time.',
+    confidence: 0.87,
+    status: Status.REVIEWING,
+    analysisStatus: AnalysisStatus.COMPLETED,
+    analysisError: null,
+    modelVersion: 'seed-v1',
+    daysAgo: 9,
+  },
+  {
+    message: 'Could you add keyboard shortcuts for assigning a ticket to myself from the list view?',
+    productName: 'Admin Dashboard',
+    userName: null,
+    userEmail: null,
+    source: 'other',
+    sentiment: Sentiment.NEUTRAL,
+    category: Category.FEATURE_REQUEST,
+    priority: Priority.LOW,
+    summary: 'Request for keyboard shortcut to self-assign tickets.',
+    confidence: 0.84,
+    status: Status.NEW,
+    analysisStatus: AnalysisStatus.COMPLETED,
+    analysisError: null,
+    modelVersion: 'seed-v1',
+    daysAgo: 10,
+  },
+  {
+    message: 'Uploading a 20MB CSV for bulk invites times out around 70 percent every time.',
+    productName: 'Team Invites',
+    userName: 'Hannah Brooks',
+    userEmail: 'hannah.brooks@example.com',
+    source: 'support',
+    sentiment: Sentiment.NEGATIVE,
+    category: Category.PERFORMANCE,
+    priority: Priority.HIGH,
+    summary: 'Bulk CSV invite upload times out near 70 percent.',
+    confidence: 0.95,
+    status: Status.NEW,
+    analysisStatus: AnalysisStatus.COMPLETED,
+    analysisError: null,
+    modelVersion: 'seed-v1',
+    daysAgo: 11,
+  },
+  {
+    message: 'Password reset emails sometimes include a link that already expired when I open them.',
+    productName: 'Account Security',
+    userName: 'Leo Martins',
+    userEmail: 'leo.martins@example.com',
+    source: 'email',
+    sentiment: Sentiment.NEGATIVE,
+    category: Category.SECURITY,
+    priority: Priority.HIGH,
+    summary: 'Password reset links appear expired on open.',
+    confidence: 0.9,
+    status: Status.REVIEWING,
+    analysisStatus: AnalysisStatus.COMPLETED,
+    analysisError: null,
+    modelVersion: 'seed-v1',
+    daysAgo: 12,
+  },
+  {
+    message: 'The empty state illustrations on the projects page made the product feel friendlier.',
+    productName: 'Projects',
+    userName: 'Nina Kapoor',
+    userEmail: 'nina.kapoor@example.com',
+    source: 'survey',
+    sentiment: Sentiment.POSITIVE,
+    category: Category.UI_UX,
+    priority: Priority.LOW,
+    summary: 'Positive comment on empty-state illustrations.',
+    confidence: 0.92,
+    status: Status.RESOLVED,
+    analysisStatus: AnalysisStatus.COMPLETED,
+    analysisError: null,
+    modelVersion: 'seed-v1',
+    daysAgo: 13,
+  },
+  {
+    message: 'We need SSO via SAML for our university lab accounts before we can roll this out.',
+    productName: 'Account Security',
+    userName: 'Prof. Adeyemi',
+    userEmail: 'adeyemi@university.edu',
+    source: 'email',
+    sentiment: Sentiment.NEUTRAL,
+    category: Category.FEATURE_REQUEST,
+    priority: Priority.CRITICAL,
+    summary: 'Blocking request for SAML SSO for university accounts.',
+    confidence: 0.96,
+    status: Status.NEW,
+    analysisStatus: AnalysisStatus.COMPLETED,
+    analysisError: null,
+    modelVersion: 'seed-v1',
+    daysAgo: 14,
+  },
+  {
+    message: 'Charts on the weekly report render twice and flicker when I resize the browser window.',
+    productName: 'Reports',
+    userName: 'Yuki Tanaka',
+    userEmail: 'yuki.tanaka@example.com',
+    source: 'web',
+    sentiment: Sentiment.NEGATIVE,
+    category: Category.BUG,
+    priority: Priority.MEDIUM,
+    summary: 'Weekly report charts flicker and double-render on resize.',
+    confidence: 0.85,
+    status: Status.REVIEWING,
+    analysisStatus: AnalysisStatus.COMPLETED,
+    analysisError: null,
+    modelVersion: 'seed-v1',
+    daysAgo: 15,
+  },
+  {
+    message: 'Support chat wait time was under two minutes. Agent resolved a billing mismatch quickly.',
+    productName: 'Customer Support',
+    userName: 'Elena Rossi',
+    userEmail: 'elena.rossi@example.com',
+    source: 'support',
+    sentiment: Sentiment.POSITIVE,
+    category: Category.OTHER,
+    priority: Priority.LOW,
+    summary: 'Praise for fast support chat and billing fix.',
+    confidence: 0.93,
+    status: Status.RESOLVED,
+    analysisStatus: AnalysisStatus.COMPLETED,
+    analysisError: null,
+    modelVersion: 'seed-v1',
+    daysAgo: 16,
+  },
+  {
+    message: 'The API documentation does not mention rate-limit headers. That caused a production outage.',
+    productName: 'Public API',
+    userName: 'Jordan Lee',
+    userEmail: 'jordan.lee@example.com',
+    source: 'email',
+    sentiment: Sentiment.NEGATIVE,
+    category: Category.OTHER,
+    priority: Priority.HIGH,
+    summary: 'Missing rate-limit header docs caused a production outage.',
+    confidence: 0.88,
+    status: Status.NEW,
+    analysisStatus: AnalysisStatus.COMPLETED,
+    analysisError: null,
+    modelVersion: 'seed-v1',
+    daysAgo: 17,
+  },
+  {
+    message: 'Dark mode contrast on disabled buttons is too low. I cannot tell if they are clickable.',
+    productName: 'Admin Dashboard',
+    userName: 'Aisha Khan',
+    userEmail: 'aisha.khan@example.com',
+    source: 'web',
+    sentiment: Sentiment.NEGATIVE,
+    category: Category.UI_UX,
+    priority: Priority.MEDIUM,
+    summary: 'Disabled button contrast in dark mode is too low.',
+    confidence: 0.9,
+    status: Status.NEW,
+    analysisStatus: AnalysisStatus.COMPLETED,
+    analysisError: null,
+    modelVersion: 'seed-v1',
+    daysAgo: 18,
+  },
+  {
+    message: 'Please allow pinning a product on the public feedback form so users do not retype it.',
+    productName: 'Public Feedback Form',
+    userName: 'Ben Travers',
+    userEmail: 'ben.travers@example.com',
+    source: 'survey',
+    sentiment: Sentiment.NEUTRAL,
+    category: Category.FEATURE_REQUEST,
+    priority: Priority.MEDIUM,
+    summary: 'Request to pin product name on the public form.',
+    confidence: 0.83,
+    status: Status.NEW,
+    analysisStatus: AnalysisStatus.COMPLETED,
+    analysisError: null,
+    modelVersion: 'seed-v1',
+    daysAgo: 19,
+  },
+  {
+    message: 'Two-factor backup codes downloaded as a blank file in Firefox 128.',
+    productName: 'Account Security',
+    userName: 'Chen Wei',
+    userEmail: 'chen.wei@example.com',
+    source: 'support',
+    sentiment: Sentiment.NEGATIVE,
+    category: Category.SECURITY,
+    priority: Priority.CRITICAL,
+    summary: '2FA backup codes download as a blank file in Firefox.',
+    confidence: 0.94,
+    status: Status.REVIEWING,
+    analysisStatus: AnalysisStatus.COMPLETED,
+    analysisError: null,
+    modelVersion: 'seed-v1',
+    daysAgo: 20,
+  },
+  {
+    message: 'Homepage hero video makes the tab use 180 percent CPU on older laptops.',
+    productName: 'Marketing Site',
+    userName: 'Grace Okonkwo',
+    userEmail: 'grace.okonkwo@example.com',
+    source: 'web',
+    sentiment: Sentiment.NEGATIVE,
+    category: Category.PERFORMANCE,
+    priority: Priority.MEDIUM,
+    summary: 'Hero video causes high CPU usage on older laptops.',
+    confidence: 0.87,
+    status: Status.NEW,
+    analysisStatus: AnalysisStatus.COMPLETED,
+    analysisError: null,
+    modelVersion: 'seed-v1',
+    daysAgo: 21,
+  },
+  {
+    message: 'Loved the new keyboard-first command palette. I can jump between projects in seconds.',
+    productName: 'Projects',
+    userName: 'Tom Becker',
+    userEmail: 'tom.becker@example.com',
+    source: 'web',
+    sentiment: Sentiment.POSITIVE,
+    category: Category.UI_UX,
+    priority: Priority.LOW,
+    summary: 'Positive feedback on the command palette.',
+    confidence: 0.95,
+    status: Status.RESOLVED,
+    analysisStatus: AnalysisStatus.COMPLETED,
+    analysisError: null,
+    modelVersion: 'seed-v1',
+    daysAgo: 22,
+  },
+  {
+    message: 'The weekly digest is fine. No strong opinion, just confirming it still arrives on Mondays.',
+    productName: 'Notifications',
+    userName: 'Rita Gomes',
+    userEmail: 'rita.gomes@example.com',
+    source: 'survey',
+    sentiment: Sentiment.NEUTRAL,
+    category: Category.OTHER,
+    priority: Priority.LOW,
+    summary: 'Neutral confirmation that Monday digest still arrives.',
+    confidence: 0.8,
+    status: Status.RESOLVED,
+    analysisStatus: AnalysisStatus.COMPLETED,
+    analysisError: null,
+    modelVersion: 'seed-v1',
+    daysAgo: 23,
+  },
+  {
+    message: 'Exporting 5,000 rows from reports froze the browser tab for almost a minute.',
+    productName: 'Reports',
+    userName: 'Marcus Holm',
+    userEmail: 'marcus.holm@example.com',
+    source: 'support',
+    sentiment: Sentiment.NEGATIVE,
+    category: Category.PERFORMANCE,
+    priority: Priority.HIGH,
+    summary: 'Large report export freezes the browser tab.',
+    confidence: 0.92,
+    status: Status.REVIEWING,
+    analysisStatus: AnalysisStatus.COMPLETED,
+    analysisError: null,
+    modelVersion: 'seed-v1',
+    daysAgo: 24,
+  },
+  {
+    message: 'Can we get a public status page for API downtime instead of only Twitter updates?',
+    productName: 'Public API',
+    userName: null,
+    userEmail: 'ops@example.com',
+    source: 'other',
+    sentiment: Sentiment.NEUTRAL,
+    category: Category.FEATURE_REQUEST,
+    priority: Priority.MEDIUM,
+    summary: 'Request for a public API status page.',
+    confidence: 0.86,
+    status: Status.NEW,
+    analysisStatus: AnalysisStatus.COMPLETED,
+    analysisError: null,
+    modelVersion: 'seed-v1',
+    daysAgo: 25,
+  },
+  {
+    message: 'The checkout order summary still shows the old tax rate after I change the country.',
+    productName: 'Checkout Flow',
+    userName: 'Amelia Wright',
+    userEmail: 'amelia.wright@example.com',
+    source: 'web',
+    sentiment: Sentiment.NEGATIVE,
+    category: Category.BUG,
+    priority: Priority.HIGH,
+    summary: 'Order summary tax rate does not update after country change.',
+    confidence: 0.91,
+    status: Status.NEW,
+    analysisStatus: AnalysisStatus.COMPLETED,
+    analysisError: null,
+    modelVersion: 'seed-v1',
+    daysAgo: 26,
+  },
+  {
+    message:
+      'This comment is waiting for analysis after a bulk import from last week’s workshop notes.',
+    productName: 'Public Feedback Form',
+    userName: 'Workshop Facilitator',
+    userEmail: 'workshop@example.com',
+    source: 'other',
+    sentiment: null,
+    category: null,
+    priority: null,
+    summary: null,
+    confidence: null,
+    status: Status.NEW,
+    analysisStatus: AnalysisStatus.PENDING,
+    analysisError: null,
+    modelVersion: null,
+    daysAgo: 0,
+  },
+  {
+    message: 'Students said the lab kiosk felt sluggish when switching between feedback forms.',
+    productName: 'Mobile App',
+    userName: 'Campus IT',
+    userEmail: 'campus-it@university.edu',
+    source: 'survey',
+    sentiment: null,
+    category: null,
+    priority: null,
+    summary: null,
+    confidence: null,
+    status: Status.NEW,
+    analysisStatus: AnalysisStatus.PENDING,
+    analysisError: null,
+    modelVersion: null,
+    daysAgo: 1,
+  },
+  {
+    message: 'Analysis failed previously when this row was imported from a corrupted email MIME part.',
+    productName: 'Email Ingest',
+    userName: 'Mailer Daemon',
+    userEmail: 'mailer@example.com',
+    source: 'email',
+    sentiment: null,
+    category: null,
+    priority: null,
+    summary: null,
+    confidence: null,
+    status: Status.NEW,
+    analysisStatus: AnalysisStatus.FAILED,
+    analysisError: 'Model request timed out after 15000ms',
+    modelVersion: 'seed-v1',
+    daysAgo: 2,
+  },
+  {
+    message: 'Need a way to redact phone numbers before feedback is stored for the student clinic.',
+    productName: 'Public Feedback Form',
+    userName: 'Clinic Admin',
+    userEmail: 'clinic@university.edu',
+    source: 'email',
+    sentiment: null,
+    category: null,
+    priority: null,
+    summary: null,
+    confidence: null,
+    status: Status.REVIEWING,
+    analysisStatus: AnalysisStatus.FAILED,
+    analysisError: 'Classifier returned an invalid label payload',
+    modelVersion: 'seed-v1',
+    daysAgo: 4,
+  },
+];
+
+function daysAgoDate(daysAgo: number, hour = 10): Date {
+  const now = new Date();
+  return new Date(
+    Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate() - daysAgo,
+      hour,
+      15,
+      0,
+      0,
+    ),
+  );
+}
+
+async function seedUsers(): Promise<void> {
+  const adminEmail = process.env.SEED_ADMIN_EMAIL || 'admin@feedbackiq.local';
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD || 'AdminPassword123!';
+
+  const adminHash = await bcrypt.hash(adminPassword, 10);
+  await prisma.user.upsert({
+    where: { email: adminEmail.toLowerCase() },
+    update: { passwordHash: adminHash, role: Role.ADMIN },
+    create: {
+      email: adminEmail.toLowerCase(),
+      passwordHash: adminHash,
+      role: Role.ADMIN,
+    },
+  });
+  console.log(`Seeded ADMIN user: ${adminEmail}`);
+
+  const viewerEmail = process.env.SEED_VIEWER_EMAIL || 'viewer@feedbackiq.local';
+  const viewerPassword = process.env.SEED_VIEWER_PASSWORD || 'ViewerPassword123!';
+
+  const viewerHash = await bcrypt.hash(viewerPassword, 10);
+  await prisma.user.upsert({
+    where: { email: viewerEmail.toLowerCase() },
+    update: { passwordHash: viewerHash, role: Role.VIEWER },
+    create: {
+      email: viewerEmail.toLowerCase(),
+      passwordHash: viewerHash,
+      role: Role.VIEWER,
+    },
+  });
+  console.log(`Seeded VIEWER user: ${viewerEmail}`);
+}
+
+async function main(): Promise<void> {
+  const isDemoMode = process.argv.includes('--demo');
+
+  await seedUsers();
+
+  const deleted = await prisma.feedback.deleteMany({
+    where: { isSeed: true },
+  });
+  console.log(`Removed ${deleted.count} existing seed row(s).`);
+
+  const createdIds: string[] = [];
+
+  for (const [index, row] of SEED_ROWS.entries()) {
+    const createdAt = daysAgoDate(row.daysAgo, 8 + (index % 10));
+    const analyzedAt =
+      !isDemoMode && row.analysisStatus === AnalysisStatus.COMPLETED
+        ? new Date(createdAt.getTime() + 5 * 60 * 1000)
+        : null;
+
+    const created = await prisma.feedback.create({
+      data: {
+        message: row.message,
+        productName: row.productName,
+        userName: row.userName,
+        userEmail: row.userEmail,
+        source: row.source,
+        sentiment: isDemoMode ? null : row.sentiment,
+        category: isDemoMode ? null : row.category,
+        priority: isDemoMode ? null : row.priority,
+        summary: isDemoMode ? null : row.summary,
+        confidence: isDemoMode ? null : row.confidence,
+        status: row.status,
+        analysisStatus: isDemoMode ? AnalysisStatus.PENDING : row.analysisStatus,
+        analysisError: isDemoMode ? null : row.analysisError,
+        modelVersion: isDemoMode ? null : row.modelVersion,
+        analyzedAt,
+        isSeed: true,
+        createdAt,
+      },
+    });
+    createdIds.push(created.id);
+  }
+
+  console.log(`Inserted ${SEED_ROWS.length} seed feedback row(s).`);
+
+  if (isDemoMode) {
+    console.log('--- Running Real AI Service Analysis on Demo Seed Rows ---');
+    for (const id of createdIds) {
+      await analyzeFeedbackRecord(id);
+    }
+    console.log('Real AI service demo seeding complete!');
+  }
+}
+
+main()
+  .catch((error: unknown) => {
+    console.error('Seed failed:', error);
+    process.exitCode = 1;
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

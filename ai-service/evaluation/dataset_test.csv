@@ -1,0 +1,151 @@
+id,text,sentiment,category,priority
+101,"The app crashes every time I upload a photo, please fix this ASAP",negative,bug,high
+102,"Would be great if you could add dark mode to the settings page",positive,feature_request,low
+103,"I found a way to read other users' data without logging in",negative,security,critical
+104,"The login page is so hard to find on mobile, the button is tiny",negative,ui_ux,medium
+105,"The dashboard takes 20 seconds to load every morning, way too slow",negative,performance,high
+106,"The payment was charged twice on my credit card. This is urgent!",negative,bug,critical
+107,"Could you add CSV export to the reports page? It would help a lot",neutral,feature_request,low
+108,"My data just got leaked in the production database, it's all over Twitter!",negative,security,critical
+109,"The app crashed and I lost all my data",negative,bug,critical
+110,"Great update, thank you for the recent bug fixes, they work perfectly now",positive,other,low
+111,"Please add dark mode. The bright white background hurts my eyes",negative,feature_request,low
+112,"The site is completely down, production outage for all users",negative,bug,critical
+113,"slow!!!",negative,performance,medium
+114,"The password reset email is sent in plain text, very insecure",negative,security,high
+115,"Would love to have the ability to import data, it would save me a lot of time",positive,feature_request,low
+116,"The UI icons are ugly and the font is too small",negative,ui_ux,low
+117,"Every time I press save the page freezes for 10 seconds",negative,performance,high
+118,"minor cosmetic typo in the footer copyright year is 2023 instead of 2024",neutral,bug,low
+119,"My suggestion is notifications for mobile, right away",neutral,feature_request,medium
+120,"The report generated correctly on September 15, 2024 with 42 pages. Average size 3MB.",neutral,other,low
+121,"Hacked account! Password changed by attacker, contact support immediately",negative,security,critical
+122,"The checkout flow is broken, cannot complete purchase. Please fix",negative,bug,critical
+123,"The image upload page works on mobile app crash every time I attach file",negative,bug,high
+124,"Search function returns wrong results for queries with 'customer' word",negative,bug,medium
+125,"Dark mode toggle would be fantastic",positive,ui_ux,low
+126,"Production SQL Injection vulnerability in the search field. PII exposed",negative,security,critical
+127,"The app crashes every time i upload a file. so frustrating and unusable",negative,bug,high
+128,"Fantastic release team. 2FA login auth 2 factor authentication add please",positive,feature_request,low
+129,"The whole app is broken. white screen of death on startup every time",negative,bug,critical
+130,"Interface color contrast in night mode makes navigation difficult",negative,ui_ux,medium
+131,"API latency spiked to 4500ms after the database migration",negative,performance,high
+132,"Please support SSO integration for SAML and Azure AD",neutral,feature_request,medium
+133,"Memory leak in worker thread causes container reboot every 4 hours",negative,performance,high
+134,"User permissions bypass allows viewers to modify record status",negative,security,critical
+135,"The charts double-render and flicker on screen resize",negative,bug,medium
+136,"Exporting 10,000 rows times out around 80 percent completion",negative,performance,high
+137,"Super intuitive onboarding flow! Really enjoyed the setup walkthrough.",positive,ui_ux,low
+138,"Session cookie missing HttpOnly flag on staging server",negative,security,high
+139,"Requesting bulk selection checkboxes for the feedback list view",neutral,feature_request,low
+140,"Font size on mobile table columns is illegible on smaller screens",negative,ui_ux,medium
+141,"Order confirmation email is missing tax breakdown breakdown",negative,bug,medium
+142,"The system feels very responsive today, zero lag!",positive,performance,low
+143,"Cross-site scripting (XSS) payload executes in public comment box",negative,security,critical
+144,"Can we pin default product names in submission form?",neutral,feature_request,low
+145,"Filter state resets when refreshing the page",negative,bug,medium
+146,"Page layout breaks when browser width is under 380px",negative,ui_ux,medium
+147,"Customer support team responded in under 5 minutes, fantastic service!",positive,other,low
+148,"Database locks up during nightly analytics batch job",negative,performance,high
+149,"Authentication token does not expire after password change",negative,security,critical
+150,"Awesome dark mode design! Contrast is spot on.",positive,ui_ux,low
+151,"Add webhook notifications for critical bug alerts",neutral,feature_request,medium
+152,"Pay button remains disabled even after completing all required fields",negative,bug,high
+153,"High RAM utilization on Node server after running large export",negative,performance,high
+154,"CSRF token missing on feedback submission endpoint",negative,security,critical
+155,"Clean aesthetic and fast loading times on dashboard",positive,ui_ux,low
+156,"Allow sorting by priority score in feedback list",neutral,feature_request,low
+157,"Textarea character counter counts spaces incorrectly",negative,bug,low
+158,"App unresponsive for 15 seconds when opening large project files",negative,performance,high
+159,"Unencrypted JWT token stored in localStorage",negative,security,critical
+160,"Thanks for fixing the navigation bug in version 1.2.0!",positive,other,low
+161,"The application crashes randomly every few hours with zero log output",negative,bug,high
+162,"Please add an option to customize table column widths",neutral,feature_request,low
+163,"Database connection pool exhausted during peak hour traffic",negative,performance,high
+164,"Hardcoded API key exposed in client side bundle file",negative,security,critical
+165,"The dashboard layout is confusing and unintuitive to navigate",negative,ui_ux,medium
+166,"Checkout page throws 500 error whenever coupon is applied",negative,bug,critical
+167,"Would be great if we could schedule automated weekly PDF reports",positive,feature_request,medium
+168,"Search query response time is over 12 seconds",negative,performance,high
+169,"Session token remains valid after admin logs out",negative,security,critical
+170,"Button alignment on mobile view is overlapping with footer text",negative,ui_ux,low
+171,"The CSV export feature works seamlessly! Very useful.",positive,other,low
+172,"File upload times out on 3G mobile connections",negative,performance,medium
+173,"Customer data accessible without authentication via direct URL",negative,security,critical
+174,"Please add keyboard shortcuts for quick status changes",neutral,feature_request,low
+175,"Dropdown menu closes immediately before I can select an option",negative,bug,medium
+176,"Dark mode colors are gorgeous and easy on the eyes!",positive,ui_ux,low
+177,"System outage across all regions due to gateway failure",negative,bug,critical
+178,"RAM consumption grows continuously until server runs out of memory",negative,performance,high
+179,"Password reset link can be re-used multiple times",negative,security,critical
+180,"Just wanted to send a note of appreciation for your great product!",positive,other,low
+181,"Adding tags to feedback items would help our team organize better",neutral,feature_request,medium
+182,"Chart tooltips render behind table headers on mobile safari",negative,ui_ux,low
+183,"Application freezes for 8 seconds when sorting by date column",negative,performance,high
+184,"User email addresses leaked in public API response payload",negative,security,critical
+185,"Saving feedback record fails with null pointer exception",negative,bug,high
+186,"Can you enable push notifications for mobile app users?",neutral,feature_request,medium
+187,"Font contrast in table cells is unreadable under bright sunlight",negative,ui_ux,medium
+188,"Background worker thread deadlocks when processing bulk CSV",negative,performance,high
+189,"Insecure direct object reference (IDOR) allows reading other feedback",negative,security,critical
+190,"The new filtering options saved our team hours of review time!",positive,other,low
+191,"App crashes on launch on iOS 17.5 devices",negative,bug,high
+192,"Please provide a dark mode option for PDF invoice downloads",neutral,feature_request,low
+193:"Initial page load payload is over 15MB, taking 10s on LTE",negative,performance,high
+194,"SQL error exposed in public error message banner",negative,security,high
+195,"Sidebar animation lags severely on older hardware",negative,ui_ux,low
+196,"Clicking submit twice creates duplicate feedback entries in database",negative,bug,medium
+197,"Integration with Slack webhooks would be a game changer for us",positive,feature_request,medium
+198,"Search index rebuild causes 100 percent CPU utilization for 30 minutes",negative,performance,high
+199,"Admin login vulnerable to brute force attack due to missing rate limit",negative,security,critical
+200,"The overall user experience is polished, clean and highly responsive.",positive,ui_ux,low
+201,"Export button does not respond to mouse clicks on Firefox",negative,bug,medium
+202,"Add support for downloading reports in Excel format in addition to CSV",neutral,feature_request,low
+203,"Page load time increased from 1s to 6s after latest update",negative,performance,high
+204,"Plaintext passwords logged in server stdout logs during login",negative,security,critical
+205,"Padding around cards is uneven on tablet landscape orientation",negative,ui_ux,low
+206,"Save button remains disabled even after editing form fields",negative,bug,medium
+207,"We need multi-language localization support for international teams",neutral,feature_request,medium
+208,"High network bandwidth usage due to uncompressed PNG assets",negative,performance,medium
+209,"JWT secret key hardcoded in client JavaScript bundle",negative,security,critical
+210,"Very impressed with the speed of AI analysis generation!",positive,other,low
+211,"Clicking back button returns 404 page instead of previous table view",negative,bug,medium
+212,"Please add an option to archive old feedback records",neutral,feature_request,low
+213:"Database connection timeout errors during heavy search queries",negative,performance,high
+214,"Admin cookie missing Secure flag in production environment",negative,security,high
+215,"Tab focus ring is missing on interactive form controls",negative,ui_ux,low
+216,"Form input field clears typed text when validation error triggers",negative,bug,medium
+217,"Allow users to save custom filter presets for quick access",positive,feature_request,low
+218,"Memory usage spikes by 2GB when opening analytics overview tab",negative,performance,high
+219,"User role elevation flaw allows VIEWER to gain ADMIN permissions",negative,security,critical
+220,"The typography scale is clear and readable across all screen sizes",positive,ui_ux,low
+221,"PDF download link produces corrupt 0-byte document file",negative,bug,high
+222,"Please add email digest frequency controls (daily vs weekly)",neutral,feature_request,low
+223,"Gzip compression disabled on static assets causing slow transfers",negative,performance,medium
+224,"CORS policy allows arbitrary wildcard origins on API routes",negative,security,critical
+225,"Modal dialog background overlay covers active form inputs",negative,ui_ux,low
+226,"Reanalyze button fails silently without showing error toast",negative,bug,medium
+227,"Requesting dark mode theme toggle for public feedback page",neutral,feature_request,low
+228,"Server CPU usage stays at 95 percent after running analytics report",negative,performance,high
+229,"Unauthenticated access to internal admin telemetry metrics route",negative,security,high
+230,"Wonderful support team! Prompt resolution to our setup question.",positive,other,low
+231,"App crashes with out of memory error when rendering 100 table rows",negative,bug,high
+232,"Add dark mode automatic scheduling based on system theme",neutral,feature_request,low
+233,"Search response takes 9 seconds on database with 50,000 records",negative,performance,high
+234,"Sensitive user PII logged in browser console error stack trace",negative,security,critical
+235,"Mobile sidebar menu stays open when navigating to new page",negative,ui_ux,low
+236,"Submit button does not indicate loading state while processing",negative,bug,low
+237,"Please add bulk status update capability for admin table",positive,feature_request,medium
+238,"Websocket connection drops every 60 seconds on mobile network",negative,performance,medium
+239,"Path traversal vulnerability in static asset handler file path",negative,security,critical
+240,"Excellently designed feedback platform, great job team!",positive,other,low
+241,"Dashboard stat cards fail to update after submitting new item",negative,bug,medium
+242,"Allow exporting filtered feedback list to JSON file format",neutral,feature_request,low
+243,"Image asset load time exceeds 14 seconds on mobile 4G network",negative,performance,medium
+244,"Session hijacking possible due to predictable session token IDs",negative,security,critical
+245,"Color scheme in light mode has insufficient contrast ratios",negative,ui_ux,medium
+246,"Pagination next button is disabled on page 1 despite 50 results",negative,bug,medium
+247,"Add customizable email notifications when new critical bug submitted",neutral,feature_request,medium
+248,"Garbage collection pauses cause 3-second UI freezes during scroll",negative,performance,high
+249,"Admin session cookie persists after browser restart when maxAge set",negative,security,medium
+250,"The design system is clean, modern, and very enjoyable to use!",positive,ui_ux,low
