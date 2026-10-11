@@ -13,9 +13,18 @@ const nextConfig: NextConfig = {
     },
   },
   async rewrites() {
-    const rawBackendUrl = process.env.BACKEND_URL || 'http://localhost:3001';
-    const backendUrl = rawBackendUrl.replace(/\/$/, '');
-    if (!backendUrl.startsWith('http://') && !backendUrl.startsWith('https://')) {
+    const configuredBackendUrl = process.env.BACKEND_URL || 'http://localhost:3001';
+    // Accept a value pasted as `BACKEND_URL=https://...` in addition to the
+    // expected URL-only value, then validate the normalized URL strictly.
+    const rawBackendUrl = configuredBackendUrl.replace(/^BACKEND_URL=/, '');
+    let backendUrl: string;
+    try {
+      const parsedBackendUrl = new URL(rawBackendUrl);
+      if (parsedBackendUrl.protocol !== 'http:' && parsedBackendUrl.protocol !== 'https:') {
+        throw new Error('unsupported protocol');
+      }
+      backendUrl = rawBackendUrl.replace(/\/$/, '');
+    } catch {
       throw new Error('BACKEND_URL must be an absolute http:// or https:// URL');
     }
     return [
