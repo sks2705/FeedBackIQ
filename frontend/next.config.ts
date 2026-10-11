@@ -13,7 +13,8 @@ const nextConfig: NextConfig = {
     },
   },
   async rewrites() {
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:3001';
+    const rawBackendUrl = process.env.BACKEND_URL || 'http://localhost:3001';
+    const backendUrl = rawBackendUrl.replace(/\/$/, '');
     if (!backendUrl.startsWith('http://') && !backendUrl.startsWith('https://')) {
       throw new Error('BACKEND_URL must be an absolute http:// or https:// URL');
     }
